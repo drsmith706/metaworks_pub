@@ -97,15 +97,15 @@ class SystemOutput:
                 print('No  phi angle selected for theta scan; phi=0 default used.')
             anglePhi = anglePhi * self.rad
             rp_vs_angle = np.ones(len(angleTheta),dtype=complex)
-            i=0
-            for angle_n in angleTheta:
+        
+            for i, angle_n in enumerate(angleTheta):
                 w=np.multiply(SysArch.alpha, SysArch.hy)
                 argm = np.add(-(SysArch.k0*np.sin(angle_n)*np.cos(anglePhi))*SysArch.positions_x, -(SysArch.k0*np.sin(angle_n)*np.sin(anglePhi))*SysArch.positions_y)
                 afTerms = np.multiply(w,np.exp(np.multiply(1j,argm)))
                 af = np.sum(afTerms)
                 rp_vs_angle[i] = np.abs(af)**2
-                i=i+1
-            return np.vstack((angleTheta, rp_vs_angle))
+        
+            return np.vstack((angleTheta*180/np.pi, rp_vs_angle))
         elif scanType == 'angle':
             phi_start  = kwargs.get('phi_start')*self.rad
             phi_end    = kwargs.get('phi_stop')*self.rad
