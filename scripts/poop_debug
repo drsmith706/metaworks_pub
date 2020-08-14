@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Aug 14 15:10:30 2020
+
+@author: jgollub
+"""
+import matplotlib.pyplot as plt
+import numpy as np
+
+from metaworks.SystemArchitecture import SystemArchitecture
+from metaworks.ModulationPattern import ModulationPattern
+from metaworks.SystemOutput import SystemOutput
+from metaworks.DataAnalysis import DataAnalysis
+
+sa=SystemArchitecture()
+dt = DataAnalysis()
+sysOut = SystemOutput()
+cm = 0.01
+spcx = 0.5*cm
+spcy = 0.5*cm
+sa.make_linear_2D_array(spcx, spcy, number_elements_x=20, number_elements_y=20)
+sa.dipole_type = 'ideal-unconstrained'
+
+modPatt = ModulationPattern(sa, modulation_type='ideal')
+
+modPatt.directed_beam_2D(sa,0,0)
+
+SysOut = SystemOutput()
+dt = DataAnalysis()
+sa.summarize_parameters()
+
+rp = SysOut.radiation_pattern_2D(sa, theta_start=-85, theta_stop=85, theta_num=100, phi_0=0, scan_type='theta_slice')
+
+fig = plt.figure(figsize=(24,18),dpi=300)
+ScanAngles = [0, 45, 90, 135]
+numAngles = len(ScanAngles)
+nrows = np.rint(numAngles/2)
+ncols = 2
+
+
+iPlotIndex = 1
+for ScanAngle in ScanAngles:
+    rp = SysOut.radiation_pattern_2D(sa, theta_start=-85, theta_stop=85, theta_num=100, 
+                                   phi_0=ScanAngle, scan_type='theta_slice')
+    ax = plt.subplot(nrows, ncols, iPlotIndex, projection='polar')
+    dt.plot_polar_1D(rp, log_min=-40, log_max=0, title='Directivity, phi='+str(ScanAngle)+' degrees', 
+                   suppress_plot=True, plot_reference = ax, plot_size_x=8, plot_size_y=10)
+    u = plt.gcf()
+    u.set_size_inches(16,18)
+    iPlotIndex = iPlotIndex + 1
+
+plt.show()

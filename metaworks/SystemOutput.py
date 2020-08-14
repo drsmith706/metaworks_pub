@@ -8,7 +8,6 @@ Created on Fri Mar 13 17:56:10 2020
 import scipy as sc
 import numpy as np
 import scipy.constants
-from scipy import linalg
 
 class SystemOutput:
     # The SystemArchitecture class defines an arbitrary dipole layout. 
@@ -22,7 +21,7 @@ class SystemOutput:
     GHz   = 1.0E9
     rad   = sc.pi/180.
     
-    def ArrayFactor(self, SysArch, **kwargs):
+    def array_factor(self, SysArch, **kwargs):
         # The ArrayFactor attribute has several input parameters.
         # angle_start is the start angle in degrees
         # angle_stop is the stop angle in degrees
@@ -51,33 +50,31 @@ class SystemOutput:
         
         return np.vstack((angle, af_vs_angle))
 
-    def RadiationPattern(self, SysArch, **kwargs):
+    def radiation_pattern(self, SysArch, **kwargs):
         # The RadiationPattern method has several input parameters.
         # theta_start is the start angle in degrees
         # theta_stop is the stop angle in degrees
         # theta_num is the number of angles
         
-        theta_start  = kwargs.get('theta_start')*self.rad
-        theta_end    = kwargs.get('theta_stop')*self.rad
+        theta_start  = kwargs.get('theta_start')*rad
+        theta_end    = kwargs.get('theta_stop')*rad
         theta_num    = kwargs.get('theta_num')
 
         angle = np.linspace(theta_start,theta_end,theta_num)
         rp_vs_angle = np.ones(len(angle))
         
-        i=0
-
-        for angle_n in angle:
+        for i, angle_n in enumerate(angle):
             w = SysArch.alpha*SysArch.hy
             argm = -(SysArch.k0*np.sin(angle_n))*SysArch.positions_x        
             afTerms = np.multiply(w, np.exp(np.multiply(1j,argm)))
             rp = np.abs(np.sum(afTerms))
             rp_vs_angle[i] = rp**2
-            i=i+1
+
         
         angle = angle*180/np.pi
         return np.vstack((angle, rp_vs_angle))
 
-    def RadiationPattern2D(self, SysArch, **kwargs):
+    def radiation_pattern_2D(self, SysArch, **kwargs):
         # The ArrayFactor attribute has several input parameters.
         # angle_start is the start angle in degrees
         # angle_stop is the stop angle in degrees

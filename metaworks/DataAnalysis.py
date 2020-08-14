@@ -31,10 +31,10 @@ class DataAnalysis:
     
     def __init__(self, **kwargs):
     #Palettes used for plotting:
-        palBlueTones = self.Palettes()
+        palBlueTones = self.palettes()
         self.palBlueTones = palBlueTones
     
-    def Palettes(self):
+    def palettes(self):
         color_steps = 16
         r1, r2 = 0x10, 0xA5
         g1, g2 = 0x36, 0xB6
@@ -46,7 +46,7 @@ class DataAnalysis:
         return np.transpose(np.vstack((np.vstack((r, g)), b)))
 #   blueTones goes from 0x10369D to 0x099CE5
     
-    def Plot1D(self, data, **kwargs):
+    def plot_1D(self, data, **kwargs):
         # Keyword arguments:
         # title (a string variable containing the plot title)
         # xlabel (a string variable describing the x-axis)
@@ -106,7 +106,7 @@ class DataAnalysis:
             plt.yticks(fontsize=20)
         ax.plot(xvals, rdat, color=colorCurve)
     
-    def PlotComplexPolarizabilityValues(self, alph, **kwargs):
+    def plot_complex_polarizability_values(self, alph, **kwargs):
         if kwargs.get('normalize') == True:
             u = np.abs(alph)
             umax = np.max(u)
@@ -147,7 +147,7 @@ class DataAnalysis:
         ax.set_ylabel(r'Im{$\alpha_m$}', fontsize=np.int(0.02*scl))
         #plt.show
         
-    def PlotDensity2D(self,x1,x2,data, **kwargs):
+    def plot_density_2D(self,x1,x2,data, **kwargs):
         fig, ax = plt.subplots()
         plotSize = kwargs.get('plot_size')
         if plotSize == None:
@@ -171,7 +171,7 @@ class DataAnalysis:
         ctf = ax.pcolormesh(x1, x2, rdat)
         plt.show()
 
-    def PlotAlpha(self, SysArch, **kwargs):
+    def plot_alpha(self, SysArch, **kwargs):
         # Keyword arguments:
         # magnitude (true if magnitude is to be plotted)
         fig, ax = plt.subplots()
@@ -185,7 +185,7 @@ class DataAnalysis:
         
         ax.plot(SysArch.positions_x,rdat)
         
-    def PlotPolar1D(self, data, **kwargs):
+    def plot_polar_1D(self, data, **kwargs):
         angles = np.add(np.real(data[0,:]),90)
         # Normalize the maximum point to 1:
         rdat = np.abs(data[1,:])
@@ -234,9 +234,9 @@ class DataAnalysis:
         if suppressPlot != True:
             plt.show()
 
-    def PlotPolar2DAngle(self, phi, theta, data, **kwargs):
+    def plot_polar_2D_angle(self, phi, theta, data, **kwargs):
         #Normalize data to be directive gain
-        u = self.CalculateDirectivity(theta, phi, data, calculation_type='energy')
+        u = self.calculate_directivity(theta, phi, data, calculation_type='energy')
         data = data * 4 * np.pi/u
         theta = theta/self.rad
         plotSize = kwargs.get('plot_size')
@@ -279,7 +279,7 @@ class DataAnalysis:
         if suppressPlot != True:
             plt.show()
         
-    def PlotDipoleLayout(self, sa, **kwargs):
+    def plot_dipole_layout(self, sa, **kwargs):
         showDipoles = True
         showFeedField = False
         showPhase = False
@@ -341,7 +341,7 @@ class DataAnalysis:
         ndipolesY = sa.numDipolesY
         spcx = sa.dipoleSpacingX/self.cm
         lx = spcx*(ndipolesX-1)+2*spcx
-        dl = sa.wavelength_op/(self.cm * 20 * sa.guideIndex) #Sample step size for quasi-continuous sampling
+        dl = sa.wavelength_op/(self.cm * 20 * sa.guide_index) #Sample step size for quasi-continuous sampling
 
         if sa.numDipolesY > 1:
             ndipolesY = sa.numDipolesY
@@ -402,9 +402,9 @@ class DataAnalysis:
                 z=xf 
                 plt.title(ti, fontsize=20, pad = 20)
                 if sa.apertureDimension == 1:
-                    z=np.real(sa.FeedArchitecture(xpos=xf*self.cm,sample=True))
+                    z=np.real(sa.feed_architecture(xpos=xf*self.cm,sample=True))
                 elif sa.apertureDimension == 2:
-                    z=np.real(sa.FeedArchitecture2D(xpos=xf*self.cm, ypos=yf*self.cm, sample=True))
+                    z=np.real(sa.feed_architecture_2D(xpos=xf*self.cm, ypos=yf*self.cm, sample=True))
                 ctf = ax.pcolormesh(xf,yf,z/self.cm, cmap='bwr', zorder=2)
                 if showColorBar == True:
                     plt.colorbar(ctf, pad=.05, fraction = .017)            
@@ -440,23 +440,23 @@ class DataAnalysis:
                         
                 if sa.apertureDimension == 1:
                     if showPhase == True:
-                        z=np.angle(sa.FeedArchitecture(xpos=xf*self.cm,sample=True))
+                        z=np.angle(sa.feed_architecture(xpos=xf*self.cm,sample=True))
                         ti = ti + 'Phase'
                     elif showMagnitude == True:
-                        z=np.abs(sa.FeedArchitecture(xpos=xf*self.cm,sample=True))
+                        z=np.abs(sa.feed_architecture(xpos=xf*self.cm,sample=True))
                         ti = ti + 'Magnitude'
                     else:
-                        z=np.real(sa.FeedArchitecture(xpos=xf*self.cm,sample=True))
+                        z=np.real(sa.feed_architecture(xpos=xf*self.cm,sample=True))
                         ti = ti + 'Real Part'
                 elif sa.apertureDimension == 2:
                     if showPhase == True:
-                        z=np.angle(sa.FeedArchitecture(xpos=xf*self.cm, ypos=yf*self.cm, sample=True))
+                        z=np.angle(sa.feed_architecture(xpos=xf*self.cm, ypos=yf*self.cm, sample=True))
                         ti = ti + 'Phase'
                     elif showMagnitude == True:
-                        z=np.abs(sa.FeedArchitecture(xpos=xf*self.cm, ypos=yf*self.cm, sample=True))
+                        z=np.abs(sa.feed_architecture(xpos=xf*self.cm, ypos=yf*self.cm, sample=True))
                         ti = ti + 'Magnitude'
                     else:
-                        z=np.real(sa.FeedArchitecture(xpos=xf*self.cm, ypos=yf*self.cm, sample=True))
+                        z=np.real(sa.feed_architecture(xpos=xf*self.cm, ypos=yf*self.cm, sample=True))
                         ti = ti + 'Real Part'
                 plt.title(ti, fontsize=20, pad = 20)
                 if asSampled == False:
@@ -545,7 +545,7 @@ class DataAnalysis:
           
         plt.show()
 
-    def VisualizeAperture(self, sa, **kwargs):
+    def visualize_aperture(self, sa, **kwargs):
         #This doesn't work. MATPLOTLIB doesn't handle multiple 3D graphics without severe problems.
         spcX = sa.dipoleSpacingX/self.cm
         apertureSizeX = sa.apertureSizeX/self.cm
@@ -583,7 +583,7 @@ class DataAnalysis:
         plt.show()        
         
     @staticmethod
-    def CalculateBeamwidth(data, dB_level: float = -3):
+    def calculate_beamwidth(data, dB_level: float = -3):
         angles = np.add(np.real(data[0,:]),90)
         # Normalize the maximum point to 1:
         rdat = np.abs(data[1,:])
@@ -622,7 +622,7 @@ class DataAnalysis:
         return (beamwidth, beam_direction, f1, f2)
     
     @staticmethod
-    def CalculateDirectivity(theta, phi, rp, **kwargs):
+    def calculate_directivity(theta, phi, rp, **kwargs):
         calculationType = kwargs.get('calculation_type')
         thetaM, phiM = np.meshgrid(theta, phi)        
         u = 0
@@ -645,7 +645,7 @@ class DataAnalysis:
             return 10*np.log10(directivity)
     
     @staticmethod
-    def drawCuboid(p0, p1, ax, **kwargs):
+    def draw_cuboid(p0, p1, ax, **kwargs):
         
         if kwargs.get('alpha') !=None:
             alpha = kwargs.get('alpha')

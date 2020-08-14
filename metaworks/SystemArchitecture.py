@@ -15,7 +15,7 @@ import scipy as sc
 import numpy as np
 import scipy.constants
 from metaworks.ElementProperties import ElementProperties
-from scipy import linalg
+# from scipy import linalg
 
 class SystemArchitecture:
     # The SystemArchitecture class defines an arbitrary dipole layout and feed structure. 
@@ -81,16 +81,16 @@ class SystemArchitecture:
         self.hy           = np.ones(self.numDipolesX)
         
         # Calculate the incident field distribution for the default feed structure:
-        self.FeedArchitecture(feed_type = self.feed_type, set=True)
+        self.feed_architecture(feed_type = self.feed_type, set=True)
 
 #   The following set of functions allow access to class properties, allowing validation of input and self-constinency when parameters are changed.        
 
     @property
-    def dipoleType(self):
+    def dipole_type(self):
         return self._dipoleType
 
-    @dipoleType.setter
-    def dipoleType(self, value):
+    @dipole_type.setter
+    def dipole_type(self, value):
         selection = None
         properties = ('ideal', 'ideal-unconstrained', 'ideal-magnitude-only', 'ideal-constrained-lorentzian',
                       'lorentzian-limited-tuning')
@@ -106,22 +106,22 @@ class SystemArchitecture:
         else:
             print(value + ' is not a supported type')
         if value == 'lorentzian-limited-tuning':
-            self.dipoleProperties.setLorentzianDipoleParameters(tuning_frequency_low = 9.5*self.GHz, tuning_frequency_high=10.5*self.GHz,
+            self.dipoleProperties.set_lorentzian_dipole_parameters(tuning_frequency_low = 9.5*self.GHz, tuning_frequency_high=10.5*self.GHz,
                                                                 operating_frequency=self.freq_op)
     
     @property
-    def guideIndex(self):
+    def guide_index(self):
         return self._guideIndex
 
-    @guideIndex.setter
-    def guideIndex(self, value):
+    @guide_index.setter
+    def guide_index(self, value):
         self._guideIndex = value
         if self.apertureDimension == 1:
-            self.FeedArchitecture(feed_type = self.feed_type, set=True)
+            self.feed_architecture(feed_type = self.feed_type, set=True)
         else:
-            self.FeedArchitecture2D(feed_type=self.feed_type, set=True)
+            self.feed_architecture_2D(feed_type=self.feed_type, set=True)
 
-    def MakeLinearArray(self, spc, **kwargs):
+    def make_linear_array(self, spc, **kwargs):
         self.apertureDimension = 1
         apSize = kwargs.get('aperture_size')
         num = kwargs.get('number_elements')
@@ -140,9 +140,9 @@ class SystemArchitecture:
         self.alpha       = np.ones(num)
         self.dipoleLayout= np.vstack((self.dipoleID, self.positions_x, self.positions_y, self.alpha))
 
-        self.FeedArchitecture(self.feed_type, set=True)
+        self.feed_architecture(self.feed_type, set=True)
 
-    def MakeLinear2DArray(self, spcx, spcy, **kwargs):
+    def make_linear_2D_array(self, spcx, spcy, **kwargs):
         self.apertureDimension=2
         self.layoutType = 'linear 2D'
         apSizeX = kwargs.get('aperture_size_x')
@@ -171,36 +171,36 @@ class SystemArchitecture:
         self.alpha       = np.ones(self.numDipoles)
         self.dipoleLayout= np.vstack((self.dipoleID, self.positions_x, self.positions_y, self.alpha))
         
-        self.FeedArchitecture2D(feed_type=self.feed_type, set=True)
+        self.feed_architecture_2D(feed_type=self.feed_type, set=True)
    
         
-    def SummarizeParameters(self):
+    def summarize_parameters(self):
         print('Operating Frequency: ' + str(self.freq_op/self.GHz) + ' GHz')
         print('Operating Wavelength: ' + str(self.wavelength_op/self.cm) + ' cm')
         print('Dipole Type: ' + self._dipoleType)
         print('Layout Type: ' + self.layoutType)
         if self.apertureDimension == 1:
-            print('Dipole Spacing: ' + str(self.dipoleSpacingX/self.cm) + 'cm')
-            print('Aperture Size: ' + str(self.apertureSizeX/self.cm) + 'cm')
+            print('Dipole Spacing: ' + str(self.dipoleSpacingX/self.cm) + ' cm')
+            print('Aperture Size: ' + str(self.apertureSizeX/self.cm) + ' cm')
             print('Number of Dipoles: ' + str(self.numDipolesX))
         else:
-            print('Dipole Spacing along x: ' + str(self.dipoleSpacingX/self.cm) + 'cm')
-            print('Dipole Spacing along y: ' + str(self.dipoleSpacingY/self.cm) + 'cm')
-            print('Aperture Size along x: ' + str(self.apertureSizeX/self.cm) + 'cm')
-            print('Aperture Size along y: ' + str(self.apertureSizeY/self.cm) + 'cm')
+            print('Dipole Spacing along x: ' + str(self.dipoleSpacingX/self.cm) + ' cm')
+            print('Dipole Spacing along y: ' + str(self.dipoleSpacingY/self.cm) + ' cm')
+            print('Aperture Size along x: ' + str(self.apertureSizeX/self.cm) + ' cm')
+            print('Aperture Size along y: ' + str(self.apertureSizeY/self.cm) + ' cm')
             print('Number of Dipoles along x: ' + str(self.numDipolesX))
             print('Number of Dipoles along y: ' + str(self.numDipolesY))            
         print('Feed Type: ' + self.feed_type)
-        print('Waveguide Index: ' + str(self.guideIndex))
+        print('Waveguide Index: ' + str(self.guide_index))
         print('Modulation Type: ' + str(self.modulationType))
     
-    def FeedArchitecture(self, xpos=0, **kwargs):
+    def feed_architecture(self, xpos=0, **kwargs):
         # Based on the feed type, select the appropriate function. The functions corresponding to different
         # feeds are specified below.
         
-        def planeWave(xpos=0, **kwargs):
+        def plane_wave(xpos=0, **kwargs):
             if kwargs.get('set') == True:
-                self.betaX = (2*sc.pi*self.freq_op/self.C)*self.guideIndex*self.nx
+                self.betaX = (2*sc.pi*self.freq_op/self.C)*self.guide_index*self.nx
                 self.hy = np.exp(-np.multiply(1j,self.betaX*self.positions_x))
             elif kwargs.get('sample') == True:
                 return np.exp(-np.multiply(1j, np.multiply(self.betaX, xpos)))
@@ -208,61 +208,61 @@ class SystemArchitecture:
         def microstrip():
             return self.freq * 1
 
-        def rectWaveguide():
+        def rectangular_waveguide():
             return self.freq * .5
 
         choices = {
-            'plane wave': planeWave,
+            'plane wave': plane_wave,
             'microstrip': microstrip,
-            'rectangular waveguide': rectWaveguide 
+            'rectangular waveguide': rectangular_waveguide 
         }
         
         if kwargs.get('feed_type') != None:
             feed_type = kwargs.get('feed_type')
-            feedFunc = choices.get(feed_type)
+            feed_func = choices.get(feed_type)
         else:
             feed_type = self.feed_type
-            feedFunc = choices.get(feed_type)
+            feed_func = choices.get(feed_type)
         if kwargs.get('set') == True:
-            feedFunc(set=True)
+            feed_func(set=True)
         elif kwargs.get('sample') == True:
-            return feedFunc(xpos, sample=True)
+            return feed_func(xpos, sample=True)
                 
-    def FeedArchitecture2D(self, xpos=0, ypos=0, **kwargs):
+    def feed_architecture_2D(self, xpos=0, ypos=0, **kwargs):
         # Based on the feed type, select the appropriate function. The functions corresponding to different
         # feeds are specified below.
         
-        def planeWave2D(xpos=0, ypos=0, **kwargs):
+        def plane_wave_2D(xpos=0, ypos=0, **kwargs):
             if kwargs.get('set') == True:
-                self.betaX = (2*sc.pi*self.freq_op/self.C)*self.guideIndex*self.nx
-                self.betaY = (2*sc.pi*self.freq_op/self.C)*self.guideIndex*self.ny
+                self.betaX = (2*sc.pi*self.freq_op/self.C)*self.guide_index*self.nx
+                self.betaY = (2*sc.pi*self.freq_op/self.C)*self.guide_index*self.ny
                 self.hy = np.multiply(np.exp(-np.multiply(1j,self.betaX*self.positions_x)), np.exp(-np.multiply(1j,self.betaY*self.positions_y)))
             elif kwargs.get('sample') == True:
                 return np.multiply(np.exp(-np.multiply(1j,np.multiply(self.betaX,xpos))), np.exp(-np.multiply(1j,np.multiply(self.betaY, ypos))))
             
-        def microstrip2D():
-            self.freq = freq_op
+        def microstrip_2D():
+            self.freq = self.freq_op  #!!edited
             return self.freq * 1
 
-        def rectWaveguide2D():
-            self.freq = freq_op
+        def rectangular_waveguide_2D():
+            self.freq = self.freq_op #!!edited
             return self.freq * .5
 
         choices = {
-            'plane wave': planeWave2D,
-            'microstrip': microstrip2D,
-            'rectangular waveguide': rectWaveguide2D 
+            'plane wave': plane_wave_2D,
+            'microstrip': microstrip_2D,
+            'rectangular waveguide': rectangular_waveguide_2D 
         }
         
         if kwargs.get('feed_type') != None:
             feed_type = kwargs.get('feed_type')
-            feedFunc = choices.get(feed_type)
+            feed_func = choices.get(feed_type)
         else:
             feed_type = self.feed_type
-            feedFunc = choices.get(feed_type)
+            feed_func = choices.get(feed_type)
         if kwargs.get('set')==True:
-            feedFunc(set=True)
+            feed_func(set=True)
         elif kwargs.get('sample') == True:
-            return feedFunc(xpos, ypos, sample=True)   
+            return feed_func(xpos, ypos, sample=True)   
 
     

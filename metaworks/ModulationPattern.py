@@ -31,9 +31,8 @@ class ModulationPattern:
         self.modulationType = kwargs.get('modulation_type')
         if self.modulationType != None:
             SysArch.modulationType = self.modulationType
-   
-    
-    def DirectedBeam(self, s, angleSteer,**kwargs):
+
+    def directed_beam(self, s, angleSteer,**kwargs):
         angleSteer = angleSteer*self.rad
         arg = np.sin(angleSteer)*s.k0
         if self.modulationType == None:
@@ -41,7 +40,7 @@ class ModulationPattern:
             return
 
         # Internal function to compute the Euclidean map
-        def inEuclideanMap(alpha, **kwargs):
+        def _euclidean_map(alpha, **kwargs):
             r = kwargs.get('lorentzian_amplitude')
             if r == None:
                 r = 0.5
@@ -79,9 +78,9 @@ class ModulationPattern:
             return (x+1j*y)
     # Main program loop starts here:
 
-        if s.dipoleType == 'ideal-unconstrained':
+        if s.dipole_type == 'ideal-unconstrained':
             s.alpha = np.exp(np.multiply(1j,(s.betaX+arg)*s.positions_x))
-        elif s.dipoleType == 'ideal-magnitude-only':
+        elif s.dipole_type == 'ideal-magnitude-only':
             xo = kwargs.get('mag_offset')
             if xo == None:
                 xo = 1.0
@@ -91,14 +90,14 @@ class ModulationPattern:
             print(xo)
             print(mo)
             s.alpha = xo+mo*np.cos((s.betaX+arg)*s.positions_x)
-        elif s.dipoleType == 'ideal-constrained-lorentzian':
+        elif s.dipole_type == 'ideal-constrained-lorentzian':
             if self.modulationType == 'af-optimized':
                 s.alpha = np.add(-1j, np.multiply(1,np.exp(np.multiply(1j,(s.betaX+arg)*s.positions_x))))/2.0
             elif self.modulationType == 'euclidean-optimized':
                 s.alpha = np.exp(np.multiply(1j,(s.betaX+arg)*s.positions_x))
                 for i in range(len(s.alpha)):
-                    s.alpha[i] = inEuclideanMap(s.alpha[i])
-        elif s.dipoleType == 'lorentzian-limited-tuning':
+                    s.alpha[i] = _euclidean_map(s.alpha[i])
+        elif s.dipole_type == 'lorentzian-limited-tuning':
             if self.modulationType == 'af-optimized':
                 s.alpha = np.add(-1j, np.multiply(1,np.exp(np.multiply(1j,(s.betaX+arg)*s.positions_x))))/2.0                
                 for i in range(len(s.alpha)):
@@ -110,7 +109,7 @@ class ModulationPattern:
                         s.alpha[i] = -np.multiply(np.sin(u), np.exp(np.multiply(1j,u)))
 
 
-    def DirectedBeam2D(self, s, anglePhi, angleTheta, **kwargs):
+    def directed_beam_2D(self, s, anglePhi, angleTheta, **kwargs):
         anglePhi = anglePhi*self.rad
         angleTheta = angleTheta*self.rad
         argx = np.sin(angleTheta)*np.cos(anglePhi)*s.k0
@@ -120,7 +119,7 @@ class ModulationPattern:
             return
 
         # Internal function to compute the Euclidean map
-        def inEuclideanMap2D(alpha, **kwargs):
+        def _euclidean_map_2D(alpha, **kwargs):
             r = kwargs.get('lorentzian_amplitude')
             if r == None:
                 r = 0.5
@@ -157,9 +156,9 @@ class ModulationPattern:
                         y = r*(1+(1/m)**2)**(-0.5)-r
             return (x+1j*y)
     # Main program loop starts here:
-        if s.get_dipoleType() == 'ideal-unconstrained':
+        if s.dipole_type == 'ideal-unconstrained':
             s.alpha = np.multiply(np.exp(np.multiply(1j,(s.betaX+argx)*s.positions_x)),np.exp(np.multiply(1j,(s.betaY+argy)*s.positions_y)))
-        elif s.get_dipoleType() == 'ideal-magnitude-only':
+        elif s.dipole_type == 'ideal-magnitude-only':
             xo = kwargs.get('mag_offset')
             if xo == None:
                 xo = 1.0
@@ -169,13 +168,13 @@ class ModulationPattern:
             print(xo)
             print(mo)
             s.alpha = xo+mo*np.cos((s.betaX+arg)*s.positions_x)
-        elif s.get_dipoleType() == 'ideal-constrained-lorentzian':
+        elif s.dipole_type == 'ideal-constrained-lorentzian':
             if self.modulationType == 'af-optimized':
                 s.alpha = np.add(1j, np.multiply(1j,np.exp(np.multiply(1j,(s.betaX+arg)*s.positions_x))))/2.0
             elif self.modulationType == 'euclidean-optimized':
                 s.alpha = np.exp(np.multiply(1j,(s.betaX+arg)*s.positions_x))
                 for i in range(len(s.alpha)):
-                    s.alpha[i] = inEuclideanMap(s.alpha[i])
+                    s.alpha[i] = _euclidean_map(s.alpha[i])
  
 
             
